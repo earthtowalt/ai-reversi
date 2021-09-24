@@ -7,6 +7,8 @@ import vitro.*;
 import vitro.grid.*;
 import vitro.util.*;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
+
 import static vitro.util.Groups.*;
 
 public class ReversiRandomBrain implements Agent<Reversi.Player> {
@@ -17,12 +19,11 @@ public class ReversiRandomBrain implements Agent<Reversi.Player> {
         if (options.size() == 1) {
             return first(options);
         }
-        
-        // otherwise select a move that places a piece
-        return options.stream()
-                .filter(a -> a instanceof Reversi.Move)
-                .findAny()
-                .orElse(null);
+
+        // otherwise, select random move
+        List<Action> optionList = options.stream().filter(a -> a instanceof Reversi.Move).toList();
+        int randIndex = ThreadLocalRandom.current().nextInt(0, optionList.size());
+        return optionList.get(randIndex);
 
     }
 }
