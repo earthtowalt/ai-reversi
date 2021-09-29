@@ -7,7 +7,7 @@ import vitro.*;
 import vitro.grid.*;
 
 public class ReversiAssignment extends Host {
-	
+
 	private static final long serialVersionUID = 1L;
 
 	public static void main(String[] args) {
@@ -27,8 +27,11 @@ public class ReversiAssignment extends Host {
 		model.actors.add(black);
 		model.actors.add(white);
 
-		controller.bind(black, new ReversiGreedyBrain());
-		controller.bind(white, new ReversiGreedyBrain());
+//		controller.bind(black, new ReversiRandomBrain());
+//		controller.bind(white, new ReversiGreedyBrain());
+
+		controller.bind(black, new ReversiMinimaxBrain(model, black));
+		controller.bind(white, new ReversiMinimaxBrain(model, white));
 
 		show(view);
 	}
