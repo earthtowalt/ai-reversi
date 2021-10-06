@@ -1,6 +1,6 @@
 // ModelAI Assignment - Reversi
 // Topic: Adversarial  Search
-// File: ReversiMinimaxBrain.java
+// File: ReversiAlphaBetaBrain.java
 // Authors: Carly Bernstein and Jack Walton
 
 import vitro.*;
@@ -11,10 +11,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static vitro.util.Groups.*;
 
-public class ReversiMinimaxBrain implements Agent<Reversi.Player> {
+public class ReversiAlphaBetaBrain implements Agent<Reversi.Player> {
 
     private Reversi model;
     private Reversi.Player actor;
@@ -23,9 +24,8 @@ public class ReversiMinimaxBrain implements Agent<Reversi.Player> {
     private int moveCount = 0;
     private int cumulativeMoveCount = 0;
 
-
     // Constructor
-    public ReversiMinimaxBrain(Reversi model, Reversi.Player actor) {
+    public ReversiAlphaBetaBrain(Reversi model, Reversi.Player actor) {
         this.model = model;
         this.actor = actor;
         this.opponent = model.createPlayer(actor.team() == Reversi.BLACK ? Reversi.WHITE : Reversi.BLACK);
@@ -48,23 +48,25 @@ public class ReversiMinimaxBrain implements Agent<Reversi.Player> {
 
         // Otherwise, find the best scoring minimax move
         Reversi.Move best = null;
-        int bestScore = Integer.MIN_VALUE;
+        int alpha = Integer.MIN_VALUE;
+        int beta = Integer.MAX_VALUE;
+
         for(Action a : options) {
             if (!(a instanceof Reversi.Move)) { continue; }
             // from my perspective, what is the value of move a
-            int thisScore = minimax(actor, a);
-            // System.out.println("\tCHOOSE :: THISSCORE: " + thisScore);
-            if (thisScore > bestScore) {
+            int thisScore = minimax(actor, a, alpha, beta);
+
+            if (thisScore > alpha) {
+                alpha = thisScore;
                 best = (Reversi.Move)a;
-                bestScore = thisScore;
             }
         }
+        System.out.println("selected alpha (best possible): " + alpha);
 
         // to find the cumulative move count
 //        System.out.println("States Examined: " + moveCount);
 //        cumulativeMoveCount += moveCount;
 //        System.out.println("Cumulative States Examined: " + cumulativeMoveCount);
-        System.out.println("Best Possible score: " + bestScore);
 
         return best;
     }
@@ -76,7 +78,7 @@ public class ReversiMinimaxBrain implements Agent<Reversi.Player> {
      * @param option The new move that a player will make in the game.
      * @return The best score more the given move using minimax search.
      */
-    private int minimax(Reversi.Player currentActor, Action option) {
+    private int minimax(Reversi.Player currentActor, Action option, int alpha, int beta) {
         moveCount++;
         // apply the option (don't print out passing moves)
         if (!(option instanceof Reversi.Move)) {
@@ -100,27 +102,41 @@ public class ReversiMinimaxBrain implements Agent<Reversi.Player> {
         }
 
         // get opposite player
-        Reversi.Player nextActor = (currentActor.team() == this.actor.team() ? this.opponent : this.actor);
+        Reversi.Player nextActor = currentActor.team() == this.actor.team() ? this.opponent : this.actor;
 
         // make variable for largest score and best move
-        int bestScore = (nextActor.team() == this.actor.team()) ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+        boolean maximize = nextActor.team() == this.actor.team();
 
         // evaluate all of the new moves the next player could play:
         Set<Action> nextActions = nextActor.actions();
         for (Action a : nextActions) {
             if (!(a instanceof Reversi.Move) && nextActions.size() > 1) { continue; }
             // call minimax, with opposite player, and pass in option
-            int score = minimax(nextActor, a);
+            int score = minimax(nextActor, a, alpha, beta);
+
             // update best score and move if needed
-            if (nextActor.team() == this.actor.team() ? score > bestScore : score < bestScore)
-                bestScore = score;
+            if (maximize) {
+                if (score >= beta) {
+                    option.undo();
+                    return score;
+                } else if (score > alpha) {
+                    alpha = score;
+                }
+            } else {
+                if (score <= alpha) {
+                    option.undo();
+                    return score;
+                } else if (score < beta) {
+                    beta = score;
+                }
+            }
 
         }
         // undo the option
         option.undo();
 
         // return the score
-        return bestScore;
+        return maximize ? alpha : beta;
     }
 
 
