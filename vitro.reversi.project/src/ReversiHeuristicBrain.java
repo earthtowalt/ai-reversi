@@ -63,12 +63,12 @@ public class ReversiHeuristicBrain implements Agent<Reversi.Player> {
                 best = (Reversi.Move)a;
             }
         }
-        System.out.println("selected alpha (best possible): " + alpha);
+//        System.out.println("selected alpha (best possible): " + alpha);
 
         // to find the cumulative move count
 //        System.out.println("States Examined: " + moveCount);
-//        cumulativeMoveCount += moveCount;
-//        System.out.println("Cumulative States Examined: " + cumulativeMoveCount);
+        cumulativeMoveCount += moveCount;
+        System.out.println("Cumulative States Examined: " + cumulativeMoveCount);
 
         return best;
     }

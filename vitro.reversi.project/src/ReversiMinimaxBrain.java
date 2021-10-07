@@ -62,9 +62,9 @@ public class ReversiMinimaxBrain implements Agent<Reversi.Player> {
 
         // to find the cumulative move count
 //        System.out.println("States Examined: " + moveCount);
-//        cumulativeMoveCount += moveCount;
-//        System.out.println("Cumulative States Examined: " + cumulativeMoveCount);
-        System.out.println("Best Possible score: " + bestScore);
+        cumulativeMoveCount += moveCount;
+        System.out.println("Cumulative States Examined: " + cumulativeMoveCount);
+//        System.out.println("Best Possible score: " + bestScore);
 
         return best;
     }

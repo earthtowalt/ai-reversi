@@ -46,7 +46,7 @@ public class ReversiAlphaBetaBrain implements Agent<Reversi.Player> {
             return first(options);
         }
 
-        // Otherwise, find the best scoring minimax move
+        // Otherwise, find the best scoring alphabeta move
         Reversi.Move best = null;
         int alpha = Integer.MIN_VALUE;
         int beta = Integer.MAX_VALUE;
@@ -54,31 +54,31 @@ public class ReversiAlphaBetaBrain implements Agent<Reversi.Player> {
         for(Action a : options) {
             if (!(a instanceof Reversi.Move)) { continue; }
             // from my perspective, what is the value of move a
-            int thisScore = minimax(actor, a, alpha, beta);
+            int thisScore = alphabeta(actor, a, alpha, beta);
 
             if (thisScore > alpha) {
                 alpha = thisScore;
                 best = (Reversi.Move)a;
             }
         }
-        System.out.println("selected alpha (best possible): " + alpha);
+//        System.out.println("selected alpha (best possible): " + alpha);
 
         // to find the cumulative move count
 //        System.out.println("States Examined: " + moveCount);
-//        cumulativeMoveCount += moveCount;
-//        System.out.println("Cumulative States Examined: " + cumulativeMoveCount);
+        cumulativeMoveCount += moveCount;
+        System.out.println("Cumulative States Examined: " + cumulativeMoveCount);
 
         return best;
     }
 
     /**
-     * Using the current player, recursively evaluate the best move using minimax search against the adversary.
+     * Using the current player, recursively evaluate the best move using alphabeta search against the adversary.
      *
      * @param currentActor The current player that will make the next move
      * @param option The new move that a player will make in the game.
-     * @return The best score more the given move using minimax search.
+     * @return The best score more the given move using alphabeta search.
      */
-    private int minimax(Reversi.Player currentActor, Action option, int alpha, int beta) {
+    private int alphabeta(Reversi.Player currentActor, Action option, int alpha, int beta) {
         moveCount++;
         // apply the option (don't print out passing moves)
         if (!(option instanceof Reversi.Move)) {
@@ -111,8 +111,8 @@ public class ReversiAlphaBetaBrain implements Agent<Reversi.Player> {
         Set<Action> nextActions = nextActor.actions();
         for (Action a : nextActions) {
             if (!(a instanceof Reversi.Move) && nextActions.size() > 1) { continue; }
-            // call minimax, with opposite player, and pass in option
-            int score = minimax(nextActor, a, alpha, beta);
+            // call alphabeta, with opposite player, and pass in option
+            int score = alphabeta(nextActor, a, alpha, beta);
 
             // update best score and move if needed
             if (maximize) {
